@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary-color: #010101;
+  --background-color: #f1f1f1;
+  --text-black: #000000;
+  --text-light-gray: #d1d5db;
+  --text-gray: #4b5563;
+  --text-white: #ffffff;
+}
+
+@layer base {
+  :root {
+    --font-inter: "Inter", sans-serif;
+    --font-josefin: "Josefin Sans", sans-serif;
+    --font-barlow: "Barlow Condensed", sans-serif;
+  }
 }
 
 @theme inline {
@@ -14,13 +26,66 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* --background: #0a0a0a; */
+    /* --foreground: #ededed; */
   }
 }
 
 body {
-  background: var(--background);
+  background: var(--background-color);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.2;
+  font-family: var(--font-barlow);
+}
+
+.wrapper {
+  @apply px-3 py-6;
+
+  @media (min-width: 768px) {
+    @apply px-10 py-6;
+  }
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-color-white {
+  background-color: var(--background-color);
+}
+
+.text-primary {
+  color: var(--text-black);
+}
+
+.white-text {
+  color: var(--text-white);
+}
+
+.side-text {
+  color: var(--text-gray);
+}
+
+.sub-text {
+  color: var(--text-light-gray);
+}
+
+.heading {
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  font-weight: 700;
+}
+
+.title-heading {
+  font-size: clamp(1.25rem, 5vw, 2rem);
+  font-weight: 600;
+}
+
+.invert-hover:hover {
+  background-color: var(--background-color);
+  color: var(--text-black);
+}
+
+.primary-hover:hover {
+  background-color: var(--primary-color);
+  color: var(--text-white);
 }
