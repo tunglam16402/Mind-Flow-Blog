@@ -39,10 +39,10 @@ export default function PostCard({
 }: PostCardProps) {
   console.log(primaryCategory);
   return (
-    <article className="rounded-2xl overflow-hidden bg-white mt-2 p-4">
+    <article className="rounded-2xl overflow-hidden bg-white mt-2 p-4 flex flex-col h-full">
       <div className="relative">
         <Link href={`/blog/${slug}`}>
-          <div className="relative aspect-[16/9] overflow-hidden rounded-lg ">
+          <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
             <Image
               src={coverImage}
               alt={title}
@@ -56,7 +56,7 @@ export default function PostCard({
         <div className="absolute top-2 cursor-pointer left-2 bg-white/80 hover:bg-white backdrop-blur-md px-3 py-1 rounded-lg z-10">
           <Link
             href={`/category/${primaryCategory.slug}`}
-            className=" text-sm md:text-lg"
+            className="text-sm md:text-lg"
           >
             {primaryCategory.title}
           </Link>
@@ -82,38 +82,27 @@ export default function PostCard({
           {title}
         </Link>
       </h2>
-      <div>
-        <p className="mt-3 side-text">{excerpt}</p>
 
-        <div className="mt-6 border-t border-gray-300 pt-4 flex items-center justify-between">
-          <div className="flex gap-4">
-            {authors.map((author) => (
-              <Link
-                key={author.slug}
-                href={`/authors/${author.slug}`}
-                className="flex items-center gap-2"
-              >
-                {author.avatar ? (
-                  <Image
-                    src={author.avatar}
-                    alt={author.name}
-                    width={44}
-                    height={44}
-                    className="rounded-full object-cover"
-                  />
-                ) : (
-                  <Image
-                    src="../../../public/images/authors/avatar_placeholder.jpg"
-                    alt={author.name}
-                    width={44}
-                    height={44}
-                    className="rounded-full object-cover"
-                  />
-                )}
-                <span className="side-text">{author.name}</span>
-              </Link>
-            ))}
-          </div>
+      <p className="my-3 side-text">{excerpt}</p>
+
+      <div className="mt-auto pt-4 border-t border-gray-300 flex items-center justify-between">
+        <div className="flex gap-4">
+          {authors.map((author) => (
+            <Link
+              key={author.slug}
+              href={`/authors/${author.slug}`}
+              className="flex items-center gap-2"
+            >
+              <Image
+                src={author.avatar || "/images/authors/avatar_placeholder.jpg"}
+                alt={author.name}
+                width={44}
+                height={44}
+                className="rounded-full object-cover"
+              />
+              <span className="side-text">{author.name}</span>
+            </Link>
+          ))}
         </div>
         <Link href={`/blog/${slug}`} className={styles.button}>
           Read more <FaArrowRight />

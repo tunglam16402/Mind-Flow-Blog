@@ -2,13 +2,11 @@
 import { createClient, Entry } from "contentful";
 import type { ContentfulPost } from "./helpers/contentfulHelpers";
 
-// Khởi tạo client với biến môi trường từ .env.local
 export const contentfulClient = createClient({
   space: process.env.CONTENTFUL_SPACE_ID!,
   accessToken: process.env.CONTENTFUL_ACCESS_TOKEN!,
 });
 
-// Lấy toàn bộ bài viết
 export async function getAllPosts(): Promise<Entry<ContentfulPost>[]> {
   const res = await contentfulClient.getEntries<ContentfulPost>({
     content_type: "posts",
