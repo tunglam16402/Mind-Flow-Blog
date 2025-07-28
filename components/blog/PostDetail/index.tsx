@@ -56,7 +56,6 @@ export default function PostDetail({ post }: PostDetailProps) {
     authors,
     commentCount,
     excerpt,
-    primaryCategory,
     categories,
     tags,
   } = post;
@@ -78,15 +77,6 @@ export default function PostDetail({ post }: PostDetailProps) {
 
       <div className="max-w-7xl wrapper mx-auto">
         <div className="text-lg side-text mt-6 flex items-center gap-2 md:text-2xl md:gap-4 flex-wrap">
-          <div>
-            <Link
-              href={`/category/${primaryCategory.slug}`}
-              className="font-semibold hover:underline"
-            >
-              {primaryCategory.title}
-            </Link>
-          </div>
-          <span>|</span>
           {authors.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
               {authors.map((author) => (
@@ -115,7 +105,7 @@ export default function PostDetail({ post }: PostDetailProps) {
           <span>{commentCount} comments</span>
         </div>
 
-        <h1 className="text-5xl md:text-8xl font-bold">{title}</h1>
+        <h1 className="text-5xl md:text-8xl font-bold mt-4">{title}</h1>
 
         <div className="mt-8 bg-gray-200 rounded-lg px-4 py-4 gap-2 text-primary text-lg">
           {categories && categories.length > 0 && (
@@ -125,7 +115,7 @@ export default function PostDetail({ post }: PostDetailProps) {
               {categories.map((category) => (
                 <Link
                   key={category.slug}
-                  href={`/category/${primaryCategory.slug}/${category.slug}`}
+                  href={`/categories/${category.slug}`}
                   className="bg-color-white px-4 py-1 rounded-full primary-hover "
                 >
                   {category.title}
@@ -141,7 +131,7 @@ export default function PostDetail({ post }: PostDetailProps) {
               {tags.map((tag) => (
                 <Link
                   key={tag.slug}
-                  href={`/category/${primaryCategory.slug}/${tag.slug}`}
+                  href={`/categories/${tag.slug}`}
                   className="bg-color-white px-4 py-1 rounded-full primary-hover"
                 >
                   {tag.name}

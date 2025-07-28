@@ -1,24 +1,44 @@
-import { getPostBySlug } from "@/lib/contentful";
+import { PostCard } from "@/components/blog";
+import { getPostsByCategorySlug, getAllCategories } from "@/lib/contentful";
 import {
   ContentfulPost,
-  mapContentfulPostToDetailPost,
+  mapContentfulPostToPostCard,
 } from "@/lib/helpers/contentfulHelpers";
-import PostDetail from "@/components/blog/PostDetail";
 import { notFound } from "next/navigation";
 
-interface BlogPostPageProps {
+interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default async function CategoryPage(props: BlogPostPageProps) {
-  const { slug } = await props.params;
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { slug } = await params;
+  const rawPosts = await getPostsByCategorySlug(slug);
 
-  const rawPost = await getPostBySlug(slug);
-  if (!rawPost) return notFound();
+  if (!rawPosts || rawPosts.length === 0) {
+    return notFound();
+  }
 
-  const post = mapContentfulPostToDetailPost(
-    rawPost as unknown as ContentfulPost
+  const posts = rawPosts.map((entry) =>
+    mapContentfulPostToPostCard(entry as unknown as ContentfulPost)
   );
 
-  return <PostDetail post={post} />;
+  return (
+    <section className="max-w-4xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 capitalize">{slug} posts</h1>
+      <div className="grid gap-6 md:grid-cols-2">
+        {posts.map((post) => (
+          <PostCard key={post.slug} {...post} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// Bổ sung generateStaticParams dùng getAllCategories
+export async function generateStaticParams() {
+  const categories = await getAllCategories();
+
+  return categories.map((category) => ({
+    slug: category.fields.slug,
+  }));
 }

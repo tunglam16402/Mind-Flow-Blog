@@ -1,23 +1,31 @@
 import type { EntrySkeletonType } from "contentful";
 import { Document } from "@contentful/rich-text-types";
 
-// Category type raw từ Contentful
-interface ContentfulCategory extends EntrySkeletonType {
+// Category type raw  Contentful
+export interface ContentfulCategory extends EntrySkeletonType {
   contentTypeId: "category";
   fields: {
     slug: string;
     title: string;
     description?: string;
+    image?: {
+      fields?: {
+        file?: {
+          url?: string;
+        };
+      };
+    };
   };
 }
 
-// Tag type raw từ Contentful
+// Tag type raw  Contentful
 interface ContentfulTag extends EntrySkeletonType {
   contentTypeId: "tag";
   fields: {
     slug: string;
     name: string;
     type?: string;
+    category?: ContentfulCategory;
   };
 }
 
@@ -38,7 +46,7 @@ interface ContentfulAuthor extends EntrySkeletonType {
 }
 
 export interface ContentfulPost extends EntrySkeletonType {
-  contentTypeId: "post";
+  contentTypeId: "posts";
   fields: {
     slug: string;
     coverImage?: {
@@ -54,13 +62,12 @@ export interface ContentfulPost extends EntrySkeletonType {
     title: string;
     excerpt: string;
     authors?: ContentfulAuthor[];
-    primaryCategory: ContentfulCategory;
-    categories?: ContentfulCategory[];
+    categories: ContentfulCategory[];
     tags?: ContentfulTag[];
   };
 }
 
-// Author type sau khi map
+// Author type mapping
 export interface Author {
   slug: string;
   name: string;
@@ -71,12 +78,14 @@ export interface Category {
   slug: string;
   title: string;
   description?: string;
+  image?: string;
 }
 
 export interface Tag {
   slug: string;
   name: string;
   type?: string;
+  category?: Category;
 }
 
 export interface PostCard {
@@ -87,8 +96,7 @@ export interface PostCard {
   commentCount: number;
   coverImage: string;
   authors: Author[];
-  primaryCategory: Category;
-  categories?: Category[];
+  categories: Category[];
   tags?: Tag[];
 }
 
@@ -97,7 +105,6 @@ export interface DetailPost extends PostCard {
 }
 
 // Helper mapping
-
 function resolveAssetUrl(url?: string): string {
   if (!url) return "";
   if (url.startsWith("//")) return `https:${url}`;
@@ -118,25 +125,33 @@ function extractBaseFields(post: ContentfulPost): PostCard {
     };
   });
 
-  const primaryCategory: Category = {
-    slug: post.fields.primaryCategory.fields.slug,
-    title: post.fields.primaryCategory.fields.title,
-    description: post.fields.primaryCategory.fields.description,
-  };
-
-  const categories: Category[] | undefined = post.fields.categories?.map(
-    (cat) => ({
+  const categories: Category[] = post.fields.categories?.map((cat) => {
+    const imageUrl = cat.fields.image?.fields?.file?.url;
+    return {
       slug: cat.fields.slug,
       title: cat.fields.title,
       description: cat.fields.description,
-    })
-  );
+      image: resolveAssetUrl(imageUrl),
+    };
+  });
 
-  const tags: Tag[] | undefined = post.fields.tags?.map((tag) => ({
-    slug: tag.fields.slug,
-    name: tag.fields.name,
-    type: tag.fields.type,
-  }));
+  const tags: Tag[] | undefined = post.fields.tags?.map((tag) => {
+    const category = tag.fields.category;
+    const mappedCategory: Category | undefined = category
+      ? {
+          slug: category.fields.slug,
+          title: category.fields.title,
+          description: category.fields.description,
+          image: resolveAssetUrl(category.fields.image?.fields?.file?.url),
+        }
+      : undefined;
+    return {
+      slug: tag.fields.slug,
+      name: tag.fields.name,
+      type: tag.fields.type,
+      category: mappedCategory,
+    };
+  });
 
   return {
     slug: post.fields.slug,
@@ -146,7 +161,6 @@ function extractBaseFields(post: ContentfulPost): PostCard {
     commentCount: post.fields.commentCount ?? 0,
     coverImage,
     authors,
-    primaryCategory,
     categories,
     tags,
   };
@@ -163,4 +177,19 @@ export function mapContentfulPostToDetailPost(
     ...extractBaseFields(post),
     content: post.fields.content,
   };
+}
+
+function mapCategory(category: ContentfulCategory): Category {
+  return {
+    slug: category.fields.slug,
+    title: category.fields.title,
+    description: category.fields.description,
+    image: resolveAssetUrl(category.fields.image?.fields?.file?.url),
+  };
+}
+
+export function mapContentfulCategoryToCategory(
+  category: ContentfulCategory
+): Category {
+  return mapCategory(category);
 }

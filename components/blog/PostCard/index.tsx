@@ -24,7 +24,7 @@ interface PostCardProps {
   title: string;
   excerpt: string;
   authors: Author[];
-  primaryCategory: Category;
+  categories: Category[];
 }
 
 export default function PostCard({
@@ -35,9 +35,9 @@ export default function PostCard({
   title,
   excerpt,
   authors,
-  primaryCategory,
+  categories,
 }: PostCardProps) {
-  console.log(primaryCategory);
+  console.log(categories);
   return (
     <article className="rounded-2xl overflow-hidden bg-white mt-2 p-4 flex flex-col h-full">
       <div className="relative">
@@ -55,10 +55,10 @@ export default function PostCard({
         </Link>
         <div className="absolute top-2 cursor-pointer left-2 bg-white/80 hover:bg-white backdrop-blur-md px-3 py-1 rounded-lg z-10">
           <Link
-            href={`/category/${primaryCategory.slug}`}
+            href={`/categories/${categories[0].slug}`}
             className="text-sm md:text-lg"
           >
-            {primaryCategory.title}
+            {categories[0].title}
           </Link>
         </div>
       </div>

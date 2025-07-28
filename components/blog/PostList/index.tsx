@@ -7,7 +7,9 @@ import {
 
 export default async function PostList() {
   const rawPosts = await getAllPosts();
-  const posts = (rawPosts as unknown as ContentfulPost[]).map(mapContentfulPostToPostCard);
+  const posts = (rawPosts as unknown as ContentfulPost[]).map(
+    mapContentfulPostToPostCard
+  );
 
   return (
     <section className="mx-auto">
