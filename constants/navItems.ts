@@ -3,4 +3,5 @@ export const navItems = [
   { href: "/blog", label: "Blogs" },
   { href: "/categories", label: "Categories" },
   { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];

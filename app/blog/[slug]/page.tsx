@@ -22,3 +22,4 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
 
   return <PostDetail post={post} />;
 }
+
