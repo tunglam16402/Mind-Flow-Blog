@@ -32,6 +32,19 @@ export default function ZendeskTicketForm() {
       <h1 className="text-xl font-bold mb-4">Create Zendesk Ticket</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
+          name="userName"
+          type="text"
+          placeholder="Name"
+          className="w-full p-2 border rounded"
+        />
+        <input
+          name="userEmail"
+          type="email"
+          placeholder="Email"
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
           name="title"
           type="text"
           placeholder="Title"
@@ -44,7 +57,7 @@ export default function ZendeskTicketForm() {
           className="w-full p-2 border rounded"
           required
         />
-        {/* <input name="file" type="file" className="w-full" /> */}
+        <input name="file" type="file" className="w-full" />
         <button
           type="submit"
           disabled={loading}
