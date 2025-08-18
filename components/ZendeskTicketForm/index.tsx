@@ -36,6 +36,7 @@ export default function ZendeskTicketForm() {
           type="text"
           placeholder="Name"
           className="w-full p-2 border rounded"
+          required
         />
         <input
           name="userEmail"

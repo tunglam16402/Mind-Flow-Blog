@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
           body: description,
         },
         requester: {
-          name: userName || "Anonymous",
+          name: userName,
           email: userEmail,
         },
       },
