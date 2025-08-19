@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { client } from "@/lib/zendesks";
 // import { NextRequest, NextResponse } from "next/server";
@@ -65,9 +66,15 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-const GORGIAS_DOMAIN = process.env.GORGIAS_DOMAIN || "smartosc";
+const GORGIAS_DOMAIN = process.env.GORGIAS_DOMAIN;
 const GORGIAS_API_TOKEN = process.env.GORGIAS_API_TOKEN;
 const GORGIAS_EMAIL = process.env.GORGIAS_EMAIL;
+
+const AUTH_HEADER = {
+  Authorization:
+    "Basic " +
+    Buffer.from(`${GORGIAS_EMAIL}:${GORGIAS_API_TOKEN}`).toString("base64"),
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -84,18 +91,6 @@ export async function POST(req: NextRequest) {
     const additionalInfo = formData.get("additionalInfo") as string;
     const files = formData.getAll("attachments") as File[];
 
-    const ticketBody = `
-Email: ${email}
-Name: ${name}
-Order number: ${orderNumber}
-Product being returned: ${productBeingReturn}
-Reason for return: ${reasonReturn}
-Batch/serial number: ${batchSerialNumber}
-Product is untouched: ${untouched}
-Desired outcome: ${desiredOutcome}
-Additional information: ${additionalInfo}
-`;
-
     const attachments = await Promise.all(
       files.map(async (file) => {
         const arrayBuffer = await file.arrayBuffer();
@@ -107,20 +102,12 @@ Additional information: ${additionalInfo}
           `https://${GORGIAS_DOMAIN}.gorgias.com/api/upload`,
           {
             method: "POST",
-            headers: {
-              Authorization:
-                "Basic " +
-                Buffer.from(`${GORGIAS_EMAIL}:${GORGIAS_API_TOKEN}`).toString(
-                  "base64"
-                ),
-            },
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            headers: AUTH_HEADER,
             body: formDataNode as any,
           }
         );
 
         const uploadData = await uploadRes.json();
-        console.log("uploadData :>> ", uploadData);
 
         if (!uploadData?.[0]?.url) return null;
         return {
@@ -131,18 +118,24 @@ Additional information: ${additionalInfo}
       })
     );
 
-    console.log("attachments final :>> ", attachments);
-
-    const payload = {
+    const newTicket = {
       customer: { email },
       messages: [
         {
           sender: { email },
           source: {
             from: { address: email },
-            to: [{ address: "support@example.com" }],
+            to: [],
           },
-          body_text: ticketBody,
+          body_text: `Email: ${email}\n
+            Name: ${name}\n
+            Order number: ${orderNumber}\n
+            Product being returned: ${productBeingReturn}\n
+            Reason for return: ${reasonReturn}\n
+            Batch/serial number: ${batchSerialNumber}\n
+            Product is untouched: ${untouched}\n
+            Desired outcome: ${desiredOutcome}\n
+            Additional information: ${additionalInfo}`,
           channel: "email",
           from_agent: false,
           via: "api",
@@ -156,31 +149,27 @@ Additional information: ${additionalInfo}
       tags: [{ name: "return-request" }],
     };
 
-    console.log("payload :>> ", payload);
-
-    const response = await fetch(
+    const ticket = await fetch(
       `https://${GORGIAS_DOMAIN}.gorgias.com/api/tickets`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization:
-            "Basic " +
-            Buffer.from(`${GORGIAS_EMAIL}:${GORGIAS_API_TOKEN}`).toString(
-              "base64"
-            ),
-        },
-        body: JSON.stringify(payload),
+        headers: { ...AUTH_HEADER, "Content-Type": "application/json" },
+        body: JSON.stringify(newTicket),
       }
     );
 
-    const data = await response.json();
-    return NextResponse.json(data);
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    if (!ticket) {
+      return new Response(JSON.stringify({ error: "Internal server error" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return NextResponse.json(ticket);
+  } catch (error: any) {
+    console.error(error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
